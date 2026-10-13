@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Lock, Save, Loader2, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-vue-next'
 import { request } from '@/lib/api'
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 import { toast } from 'vue-sonner'
 
 const { setBreadcrumbs } = useBreadcrumb()
 const router = useRouter()
+const { logout } = useAuth()
 
 setBreadcrumbs([
     { title: 'Thay đổi mật khẩu' },
@@ -45,9 +47,9 @@ const submit = async () => {
         return
     }
 
-    if (newPassword.value.length < 6) {
+    if (newPassword.value.length < 8 || !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])/.test(newPassword.value)) {
         toast('Lỗi', {
-            description: 'Mật khẩu mới phải có ít nhất 6 ký tự',
+            description: 'Mật khẩu mới phải có ít nhất 8 ký tự gồm cả chữ, số và ký tự đặc biệt',
             icon: h(XCircle, { class: 'text-red-500 w-5 h-5' }),
             position: 'top-center',
         })
@@ -79,12 +81,17 @@ const submit = async () => {
         })
 
         if (!response.ok) {
-            const data = await response.json()
-            throw new Error(data.message || 'Có lỗi xảy ra khi đổi mật khẩu')
+            const data = await response.json().catch(() => null)
+            const msg = Array.isArray((data as any)?.message)
+                ? (data as any).message.join(', ')
+                : (data as any)?.message || 'Có lỗi xảy ra khi đổi mật khẩu'
+            throw new Error(msg)
         }
 
+        const result = await response.json().catch(() => null)
+
         toast('Thành công', {
-            description: 'Mật khẩu đã được thay đổi thành công',
+            description: result?.message || 'Mật khẩu đã được thay đổi thành công, vui lòng đăng nhập lại',
             icon: h(CheckCircle, { class: 'text-green-500 w-5 h-5' }),
             position: 'top-center',
         })
@@ -92,6 +99,10 @@ const submit = async () => {
         currentPassword.value = ''
         newPassword.value = ''
         confirmPassword.value = ''
+        // Backend đã đá hết session (tăng tokenVersion, xóa refreshToken)
+        // nên bắt buộc đăng nhập lại bằng mật khẩu mới.
+        // Token hiện tại đã chết -> logout local, không gọi /auth/logout nữa.
+        await logout(false)
     } catch (err: any) {
         toast('Lỗi', {
             description: err.message,
@@ -174,8 +185,8 @@ const submit = async () => {
                             Hủy
                         </Button>
                         <Button type="submit" :disabled="loading">
-                            <Loader2 v-if="showLoading" class="mr-2 h-4 w-4 animate-spin" />
-                            <Save v-else class="mr-2 h-4 w-4" />
+                            <Loader2 v-if="showLoading" class="h-4 w-4 animate-spin" />
+                            <Save v-else class="h-4 w-4" />
                             {{ showLoading ? 'Đang xử lý...' : 'Lưu mật khẩu' }}
                         </Button>
                     </div>

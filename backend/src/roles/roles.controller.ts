@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -28,21 +28,21 @@ export class RolesController {
   @Get(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'read', subject: 'Role' })
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.rolesService.findOne(id, req.user);
   }
 
   @Patch(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'update', subject: 'Role' })
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: UpdateRoleDto, @Req() req: any) {
+    return this.rolesService.update(id, updateRoleDto, req.user);
   }
 
   @Delete(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'delete', subject: 'Role' })
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.rolesService.remove(id, req.user);
   }
 }

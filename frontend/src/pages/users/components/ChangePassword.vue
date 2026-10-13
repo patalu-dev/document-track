@@ -36,14 +36,11 @@ const handleResetPass = async () => {
     }, 1000)
 
     try {
-        const response = await request(`/users/${props.user.id}`, {
-            method: 'PATCH',
+        const response = await request(`/users/${props.user.id}/reset-password`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                password: '123456'
-            }),
         })
 
         if (!response.ok) {

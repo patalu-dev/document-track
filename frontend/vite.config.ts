@@ -5,6 +5,9 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -22,10 +22,8 @@ export const exportUsers = async (
         if (filters.status) queryParams.append('status', filters.status)
         if (showDeleted) queryParams.append('showDeleted', 'true')
 
-        queryParams.append('page', '1')
-        queryParams.append('limit', '5000') // Xuất tối đa 5000 bản ghi
-
-        const response = await request(`/users?${queryParams.toString()}`)
+        // Endpoint export riêng (trần 5000, có throttle riêng), không bị cap 100 của list thường
+        const response = await request(`/users/export?${queryParams.toString()}`)
         if (!response.ok) throw new Error('Không thể lấy dữ liệu xuất')
 
         const result = await response.json()
@@ -45,13 +43,19 @@ export const exportUsers = async (
                 const roles = item.roles?.map((r: any) => r.name).join(', ') || '---'
                 const status = showDeleted ? 'Đã xóa' : (item.isActive ? 'Hoạt động' : 'Không hoạt động')
 
+                // Chống CSV formula injection (OWASP): neutralize cell bắt đầu = + - @ tab/CR
+                const csvCell = (v: any) => {
+                    let s = String(v ?? '')
+                    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
+                    return `"${s.replace(/"/g, '""')}"`
+                }
                 return [
                     index + 1,
-                    `"${(item.name || '').replace(/"/g, '""')}"`,
-                    `"${(item.username || '').replace(/"/g, '""')}"`,
-                    `"${(item.email || '').replace(/"/g, '""')}"`,
-                    `"${roles.replace(/"/g, '""')}"`,
-                    `"${status}"`,
+                    csvCell(item.name || ''),
+                    csvCell(item.username || ''),
+                    csvCell(item.email || ''),
+                    csvCell(roles),
+                    csvCell(status),
                 ].join(',')
             })
         ]
@@ -73,7 +77,7 @@ export const exportUsers = async (
 
         toast.success('Xuất file thành công', { id: toastId })
     } catch (err: any) {
-        toast.error('Lỗi khi xuất file: ' + err.message, { id: toastId })
-        console.error('Export error:', err)
+        toast.error('Lỗi khi xuất file, vui lòng thử lại', { id: toastId })
+        if (import.meta.env.DEV) console.error('Export error:', err)
     }
 }

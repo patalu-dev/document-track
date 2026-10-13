@@ -57,6 +57,29 @@ router.beforeEach((to, _from) => {
   if (to.name === 'login' && user.value) {
     return { name: 'dashboard' }
   }
+
+  // Enforce phân quyền FE (BE vẫn là chốt chặn): route có meta.action/subject mà không đủ quyền -> dashboard
+  const action = to.meta.action as string | undefined
+  const subject = to.meta.subject as string | undefined
+  if (action && subject && user.value && !hasPermission(user.value, action, subject)) {
+    return { name: 'dashboard' }
+  }
 })
+
+function hasPermission(u: any, action: string, subject: string): boolean {
+  try {
+    const perms: any[] = Array.isArray(u.roles)
+      ? u.roles.flatMap((r: any) => (Array.isArray(r.permissions) ? r.permissions : []))
+      : []
+    const list = perms.length > 0 ? perms : (Array.isArray(u.permissions) ? u.permissions : [])
+    const match = (p: any) =>
+      (p.action === 'manage' || p.action === action || (typeof p.action === 'string' && p.action.split(',').map((a: string) => a.trim()).includes(action))) &&
+      (p.subject === 'all' || p.subject === subject)
+    if (list.some((p) => p.inverted && match(p))) return false
+    return list.some((p) => !p.inverted && match(p))
+  } catch {
+    return false
+  }
+}
 
 export default router

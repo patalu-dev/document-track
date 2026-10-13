@@ -58,7 +58,7 @@ const handleClear = () => {
 </script>
 
 <template>
-    <Card>
+    <Card class="rounded-lg">
         <CardContent>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div class="flex flex-col gap-2">

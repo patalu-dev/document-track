@@ -21,16 +21,19 @@ export async function request(path: string, options: RequestInit = {}) {
     const refreshed = await refreshAuthToken()
     
     if (refreshed) {
-      // Retry the original request (cookies are automatically included)
+      // Retry the original request (cookies are automatically included).
+      // Trả response cho caller tự xử lý: nếu retry vẫn 401/400 (lỗi nghiệp vụ
+      // như sai currentPassword) thì KHÔNG được logout ở đây.
       response = await fetch(`${API_BASE_URL}${path}`, {
         ...options,
         headers,
         credentials: 'include',
       })
-      
+
       if (response.ok) {
-        return response
+        resetInactivityTimer()
       }
+      return response
     }
     
     logout()

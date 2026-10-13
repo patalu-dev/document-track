@@ -1,17 +1,27 @@
 import sanitizeHtml from 'sanitize-html';
 
-export function sanitizeInput(input: string): string {
+export function sanitizeInput(input: unknown): string {
+  if (typeof input !== 'string') return input as any;
   if (!input) return '';
-  
-  return sanitizeHtml(input, {
-    allowedTags: [], // Disallow all HTML tags
-    allowedAttributes: {},
-    textFilter: function(text) {
-      return text.replace(/&/g, '&amp;')
-                 .replace(/</g, '&lt;')
-                 .replace(/>/g, '&gt;');
-    },
-  });
+
+  try {
+    return sanitizeHtml(input, {
+      allowedTags: [], // Disallow all HTML tags
+      allowedAttributes: {},
+      textFilter: function(text) {
+        return text.replace(/&/g, '&amp;')
+                   .replace(/</g, '&lt;')
+                   .replace(/>/g, '&gt;');
+      },
+    });
+  } catch {
+    return input;
+  }
+}
+
+export function escapeLike(input: string): string {
+  if (typeof input !== 'string') return input;
+  return input.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
 export function sanitizeObject(obj: any): any {

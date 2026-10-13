@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
@@ -14,8 +14,8 @@ export class PermissionsController {
   @Post()
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'create', subject: 'Permission' })
-  create(@Body() createPermissionDto: CreatePermissionDto) {
-    return this.permissionsService.create(createPermissionDto);
+  create(@Body() createPermissionDto: CreatePermissionDto, @Req() req: any) {
+    return this.permissionsService.create(createPermissionDto, req.user);
   }
 
   @Get()
@@ -42,21 +42,21 @@ export class PermissionsController {
   @Get(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'read', subject: 'Permission' })
-  findOne(@Param('id') id: string) {
-    return this.permissionsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.permissionsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'update', subject: 'Permission' })
-  update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionsService.update(+id, updatePermissionDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatePermissionDto: UpdatePermissionDto, @Req() req: any) {
+    return this.permissionsService.update(id, updatePermissionDto, req.user);
   }
 
   @Delete(':id')
   @UseGuards(PoliciesGuard)
   @CheckPolicies({ action: 'delete', subject: 'Permission' })
-  remove(@Param('id') id: string) {
-    return this.permissionsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.permissionsService.remove(id);
   }
 }

@@ -2,7 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useBreadcrumb } from '@/composables/useBreadcrumb'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Inbox, Search } from 'lucide-vue-next'
+import { BookKey, ChevronLeft, ChevronRight, Inbox, Search } from 'lucide-vue-next'
 import Create from './components/Create.vue'
 import { Badge } from '@/components/ui/badge'
 import { request } from '@/lib/api'
@@ -13,7 +13,7 @@ import Delete from './components/Delete.vue'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/composables/useAuth'
 
-const { user } = useAuth()
+const { user, can } = useAuth()
 
 const { setBreadcrumbs } = useBreadcrumb()
 const router = useRouter()
@@ -134,18 +134,26 @@ onMounted(() => {
 
 <template>
     <div class="flex flex-1 flex-col gap-4 p-4 pt-3">
-        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <h1 class="text-xl font-semibold">Quản lý Permissions</h1>
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white px-4 py-3 rounded-lg border border-slate-200/80 shadow-xs">
+            <div>
+                <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                    <BookKey class="w-4 h-4" />
+                </div>
+                <h1 class="text-xl font-bold text-slate-900">Quản lý Permissions</h1>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Danh sách permissions hiện tại</p>
+            </div>
             <div class="flex items-center gap-2">
                 <div class="relative w-full md:w-64">
                     <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input v-model="filters.search" placeholder="Tìm kiếm tên, subject..."
                         class="pl-8 h-9 shadow-none bg-white" />
                 </div>
-                <Create @success="fetchPermissions" />
+                <Create v-if="can('create', 'Permission')" @success="fetchPermissions" />
             </div>
         </div>
-        <div class="overflow-x-auto border border-gray-200 rounded-sm shadow-sm bg-white">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm bg-white">
             <div class="w-full overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
                     <thead class="text-gray-700 font-medium h-8">
@@ -213,8 +221,8 @@ onMounted(() => {
                             </td>
                             <td class="px-4 py-1 whitespace-nowrap">
                                 <div class="flex gap-2">
-                                    <Edit :permission="permission" @success="fetchPermissions" />
-                                    <Delete :permission="permission" @success="fetchPermissions" />
+                                    <Edit v-if="can('update', 'Permission')" :permission="permission" @success="fetchPermissions" />
+                                    <Delete v-if="can('delete', 'Permission')" :permission="permission" @success="fetchPermissions" />
                                 </div>
                             </td>
                         </tr>

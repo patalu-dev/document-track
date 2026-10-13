@@ -14,3 +14,6 @@ overrides:
   fast-uri@<=3.1.1: ^3.1.2
   qs@>=6.11.1 <=6.15.1: ^6.15.2
   uuid@<11.1.1: ^11.1.1
+  # security: IP spoofing (throttle bypass) + JS injection (dev/test tooling)
+  proxy-addr: ^2.0.8
+  handlebars: ^4.7.10

@@ -54,7 +54,9 @@ export class AbilityFactory {
 
             conditions = JSON.parse(resolvedStr);
           } catch (e) {
-            conditions = undefined;
+            // Fail-closed: conditions hỏng thì bỏ qua rule này (deny),
+            // không để permission thành không-điều-kiện (fail-open).
+            continue;
           }
         }
 

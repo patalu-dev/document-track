@@ -2,7 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useBreadcrumb } from '@/composables/useBreadcrumb'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, FileSpreadsheet, Inbox } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, FileSpreadsheet, Inbox, User } from 'lucide-vue-next'
 import Create from './components/Create.vue'
 import { request } from '@/lib/api'
 import SearchCard from './components/SearchCard.vue'
@@ -18,7 +18,7 @@ import { useAuth } from '@/composables/useAuth'
 import { exportUsers } from './lib/exportExcel'
 import Badge from '@/components/ui/badge/Badge.vue'
 
-const { user } = useAuth()
+const { user, can } = useAuth()
 const { setBreadcrumbs } = useBreadcrumb()
 const router = useRouter()
 const route = useRoute()
@@ -178,10 +178,18 @@ const handleExport = async () => {
 
 <template>
     <div class="flex flex-1 flex-col gap-4 p-4 pt-3">
-        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div class="flex items-center gap-4">
-                <h1 class="text-xl font-semibold">Quản lý tài khoản</h1>
-                <div class="flex p-1 bg-gray-100 rounded-lg border border-gray-200">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white px-4 py-3 rounded-lg border border-slate-200/80 shadow-xs">
+            <div>
+                <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                    <User class="w-4 h-4" />
+                </div>
+                <h1 class="text-xl font-bold text-slate-900">Quản lý tài khoản</h1>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Danh sách người dùng hiện tại</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="flex p-1 bg-gray-100 rounded-lg border border-gray-200 mr-2">
                     <button @click="toggleDeleted(false)"
                         :class="['px-3 py-1 text-sm font-medium rounded-md transition-all', !showDeleted ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
                         Người dùng
@@ -191,11 +199,11 @@ const handleExport = async () => {
                         Đã xóa
                     </button>
                 </div>
+                <Create v-if="can('create', 'User')" @success="fetchUsers" />
             </div>
-            <Create @success="fetchUsers" />
         </div>
         <SearchCard :initial-filters="filters" :loading="loading" @search="handleSearch" />
-        <div class="overflow-x-auto border border-gray-200 rounded-sm mt-2 shadow-sm bg-white">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg mt-2 shadow-sm bg-white">
             <div class="w-full overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
                     <thead class="text-gray-700 h-8">
@@ -251,14 +259,14 @@ const handleExport = async () => {
                             <td class="px-4 py-0.5 whitespace-nowrap">
                                 <div class="flex gap-1">
                                     <template v-if="!showDeleted">
-                                        <ChangeStatus :user="user" @success="fetchUsers" />
-                                        <ChangePassword :user="user" @success="fetchUsers" />
-                                        <Edit :user="user" @success="fetchUsers" />
-                                        <Delete :user="user" @success="fetchUsers" />
+                                        <ChangeStatus v-if="can('update', 'User')" :user="user" @success="fetchUsers" />
+                                        <ChangePassword v-if="can('update', 'User')" :user="user" @success="fetchUsers" />
+                                        <Edit v-if="can('update', 'User')" :user="user" @success="fetchUsers" />
+                                        <Delete v-if="can('delete', 'User')" :user="user" @success="fetchUsers" />
                                     </template>
                                     <template v-else>
-                                        <Restore :user="user" @success="fetchUsers" />
-                                        <DeletePermanent :user="user" @success="fetchUsers" />
+                                        <Restore v-if="can('update', 'User')" :user="user" @success="fetchUsers" />
+                                        <DeletePermanent v-if="can('delete', 'User')" :user="user" @success="fetchUsers" />
                                     </template>
                                 </div>
                             </td>

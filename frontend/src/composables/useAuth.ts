@@ -21,7 +21,6 @@ export function useAuth() {
     refreshToken.value = null
     user.value = null
     localStorage.removeItem('user')
-    localStorage.removeItem('lastActivity')
     
     router.push({ name: 'login' })
   }
@@ -43,11 +42,7 @@ export function useAuth() {
       try {
         const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            userId: user.value.id
-          }),
-          credentials: 'include', // Important: include cookies
+          credentials: 'include', // Important: include cookies (userId lấy từ token trong cookie, không gửi body)
         })
 
         if (!response.ok) {
@@ -84,8 +79,13 @@ export function useAuth() {
 
       setAuth(data.user)
 
-      // Xử lý chuyển hướng sau khi đăng nhập thành công
+      // Chỉ cho redirect nội bộ, chống open redirect sang domain lạ
+      const isSafeRedirect = (t: string) =>
+        t.startsWith('/') && !t.startsWith('//') && !t.startsWith('/\\') && !t.includes(':') && !t.includes('\\')
       let target = redirectPath || (router.currentRoute.value.query.redirect as string) || '/dashboard'
+      if (!isSafeRedirect(target)) {
+        target = '/dashboard'
+      }
       
       // Nếu target vẫn là trang login hoặc trang chủ thì mặc định về dashboard
       if (target === '/' || target === '/login' || target.startsWith('/?')) {
@@ -105,8 +105,10 @@ export function useAuth() {
     }
   }
 
-  const logout = async () => {
-    if (user.value) {
+  const logout = async (notifyServer = true) => {
+    // Sau đổi mật khẩu token đã bị backend vô hiệu (tăng tokenVersion,
+    // xóa refreshToken) nên gọi /auth/logout chắc chắn 401 -> bỏ qua.
+    if (user.value && notifyServer) {
       try {
         await fetch(`${API_BASE_URL}/auth/logout`, {
           method: 'POST',
@@ -116,7 +118,7 @@ export function useAuth() {
           credentials: 'include', // Important: include cookies
         })
       } catch (e) {
-        console.error('Logout failed:', e)
+        if (import.meta.env.DEV) console.error('Logout failed:', e)
       }
     }
     clearAuth()
@@ -124,9 +126,8 @@ export function useAuth() {
 
   const resetInactivityTimer = () => {
     if (!INACTIVITY_ENABLED || isSessionExpired.value) return
-    const now = Date.now()
-    lastActivity.value = now
-    localStorage.setItem('lastActivity', String(now))
+    // memory-only: attacker không sửa được qua localStorage như trước
+    lastActivity.value = Date.now()
   }
 
   const checkInactivity = (silent = false) => {
@@ -205,7 +206,7 @@ export function useAuth() {
 
       return false
     } catch (e) {
-      console.error('Permission check error:', e)
+      if (import.meta.env.DEV) console.error('Permission check error:', e)
       return false
     }
   }

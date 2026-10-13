@@ -29,12 +29,23 @@ import { ShieldAlert } from 'lucide-vue-next';
 import 'vue-sonner/style.css';
 
 import { useRoute } from 'vue-router'
-import { computed, onMounted, onUnmounted } from 'vue'
+import router from '@/router'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 
 const { items: breadcrumbItems } = useBreadcrumb();
 const route = useRoute()
 const { user, resetInactivityTimer, checkInactivity, isSessionExpired, logout, can, inactivityEnabled } = useAuth()
+
+// Lưới an toàn: mất user khi đang ở trang cần auth (đổi pass xong, hết session...)
+// thì ép về login, tránh kẹt ở màn hình spinner che toàn trang.
+// Riêng trang đổi pass thì không giữ redirect (đổi xong login phải vào dashboard).
+watch(user, (v) => {
+  if (!v && route.meta.requiresAuth && route.name !== 'login') {
+    const query = route.name === 'change-password' ? {} : { redirect: route.fullPath }
+    router.replace({ name: 'login', query })
+  }
+})
 
 const hasPermission = computed(() => {
   if (!route.meta.requiresAuth) return true

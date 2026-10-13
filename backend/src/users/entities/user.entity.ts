@@ -58,6 +58,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken: string | null;
 
+  @Column({ default: 0 })
+  tokenVersion: number;
+
   @BeforeInsert()
   setCreatedAt() {
     this.createdAt = new Date();

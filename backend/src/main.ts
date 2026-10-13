@@ -26,6 +26,13 @@ async function bootstrap() {
   }));
   
   app.use(cookieParser());
+
+  // Tin proxy (nginx/LB) để Secure cookie + throttle IP đúng khi deploy sau proxy.
+  // Chỉ bật khi TRUST_PROXY=true; mặc định KHÔNG tin X-Forwarded-For để
+  // attacker không giả IP bypass rate limit (brute force login).
+  if (process.env.TRUST_PROXY === 'true') {
+    (app.getHttpAdapter().getInstance() as any)?.set?.('trust proxy', 1);
+  }
   
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
