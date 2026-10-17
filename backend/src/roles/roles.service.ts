@@ -55,7 +55,7 @@ export class RolesService {
     }
 
     if (query?.name) {
-      queryBuilder.andWhere('role.name LIKE :name ESCAPE \'\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
+      queryBuilder.andWhere('role.name LIKE :name ESCAPE \'\\\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
     }
 
     const [items, total] = await queryBuilder

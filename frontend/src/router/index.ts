@@ -29,6 +29,30 @@ const router = createRouter({
       meta: { requiresAuth: true, action: 'view', subject: 'Permission' },
     },
     {
+      path: '/departments',
+      name: 'departments.index',
+      component: () => import('@/pages/departments/Index.vue'),
+      meta: { requiresAuth: true, action: 'view', subject: 'Department' },
+    },
+    {
+      path: '/documents',
+      name: 'documents.index',
+      component: () => import('@/pages/documents/Index.vue'),
+      meta: { requiresAuth: true, action: 'view', subject: 'Document' },
+    },
+    {
+      path: '/borrow-records',
+      name: 'borrow-records.index',
+      component: () => import('@/pages/borrow-records/Index.vue'),
+      meta: { requiresAuth: true, action: 'view', subject: 'BorrowRecord' },
+    },
+    {
+      path: '/document-logs',
+      name: 'document-logs.index',
+      component: () => import('@/pages/document-logs/Index.vue'),
+      meta: { requiresAuth: true, action: 'view', subject: 'DocumentLog' },
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/pages/Dashboard.vue'),
@@ -75,8 +99,8 @@ function hasPermission(u: any, action: string, subject: string): boolean {
     const match = (p: any) =>
       (p.action === 'manage' || p.action === action || (typeof p.action === 'string' && p.action.split(',').map((a: string) => a.trim()).includes(action))) &&
       (p.subject === 'all' || p.subject === subject)
-    if (list.some((p) => p.inverted && match(p))) return false
-    return list.some((p) => !p.inverted && match(p))
+    if (list.some((p: any) => p.inverted && match(p))) return false
+    return list.some((p: any) => !p.inverted && match(p))
   } catch {
     return false
   }

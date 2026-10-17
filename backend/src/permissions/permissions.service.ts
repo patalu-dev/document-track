@@ -34,18 +34,18 @@
       if (query?.search) {
         const searchPattern = `%${escapeLike(query.search).slice(0, 100)}%`;
         queryBuilder.where(
-          '(permission.name LIKE :search ESCAPE \'\\\' OR permission.action LIKE :search ESCAPE \'\\\' OR permission.subject LIKE :search ESCAPE \'\\\' )',
+          '(permission.name LIKE :search ESCAPE \'\\\\\' OR permission.action LIKE :search ESCAPE \'\\\\\' OR permission.subject LIKE :search ESCAPE \'\\\\\' )',
           { search: searchPattern }
         );
       } else {
         if (query?.name) {
-          queryBuilder.andWhere('permission.name LIKE :name ESCAPE \'\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
+          queryBuilder.andWhere('permission.name LIKE :name ESCAPE \'\\\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
         }
         if (query?.action) {
-          queryBuilder.andWhere('permission.action LIKE :action ESCAPE \'\\\'', { action: `%${escapeLike(query.action).slice(0, 50)}%` });
+          queryBuilder.andWhere('permission.action LIKE :action ESCAPE \'\\\\\'', { action: `%${escapeLike(query.action).slice(0, 50)}%` });
         }
         if (query?.subject) {
-          queryBuilder.andWhere('permission.subject LIKE :subject ESCAPE \'\\\'', { subject: `%${escapeLike(query.subject).slice(0, 100)}%` });
+          queryBuilder.andWhere('permission.subject LIKE :subject ESCAPE \'\\\\\'', { subject: `%${escapeLike(query.subject).slice(0, 100)}%` });
         }
       }
 

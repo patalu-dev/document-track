@@ -3,6 +3,10 @@ import * as dotenv from 'dotenv';
 import { User } from './users/entities/user.entity';
 import { Role } from './roles/entities/role.entity';
 import { Permission } from './permissions/entities/permission.entity';
+import { Department } from './departments/entities/department.entity';
+import { Document } from './documents/entities/document.entity';
+import { BorrowRecord } from './borrow-records/entities/borrow-record.entity';
+import { DocumentLog } from './document-logs/entities/document-log.entity';
 
 dotenv.config();
 
@@ -23,6 +27,7 @@ export const AppDataSource = new DataSource({
   username: dbUsername,
   password: dbPassword,
   database: dbDatabase,
-  entities: [User, Role, Permission],
+  dateStrings: true,
+  entities: [User, Role, Permission, Department, Document, BorrowRecord, DocumentLog],
   synchronize: true,
 });

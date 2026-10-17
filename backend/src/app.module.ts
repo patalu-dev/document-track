@@ -8,11 +8,19 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { User } from './users/entities/user.entity';
 import { Role } from './roles/entities/role.entity';
 import { Permission } from './permissions/entities/permission.entity';
+import { Department } from './departments/entities/department.entity';
+import { Document } from './documents/entities/document.entity';
+import { BorrowRecord } from './borrow-records/entities/borrow-record.entity';
+import { DocumentLog } from './document-logs/entities/document-log.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { AbilityModule } from './ability/ability.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { DocumentsModule } from './documents/documents.module';
+import { BorrowRecordsModule } from './borrow-records/borrow-records.module';
+import { DocumentLogsModule } from './document-logs/document-logs.module';
 
 @Module({
   imports: [
@@ -44,7 +52,8 @@ import { AbilityModule } from './ability/ability.module';
           username: dbUsername,
           password: dbPassword,
           database: dbDatabase,
-          entities: [User, Role, Permission],
+          dateStrings: true,
+          entities: [User, Role, Permission, Department, Document, BorrowRecord, DocumentLog],
           synchronize: true,
         };
       },
@@ -54,6 +63,10 @@ import { AbilityModule } from './ability/ability.module';
     UsersModule,
     RolesModule,
     PermissionsModule,
+    DepartmentsModule,
+    DocumentsModule,
+    BorrowRecordsModule,
+    DocumentLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

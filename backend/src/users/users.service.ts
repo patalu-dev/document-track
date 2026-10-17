@@ -82,13 +82,13 @@ export class UsersService {
     }
 
     if (query?.name) {
-      queryBuilder.andWhere('user.name LIKE :name ESCAPE \'\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
+      queryBuilder.andWhere('user.name LIKE :name ESCAPE \'\\\\\'', { name: `%${escapeLike(query.name).slice(0, 100)}%` });
     }
     if (query?.username) {
-      queryBuilder.andWhere('user.username LIKE :username ESCAPE \'\\\'', { username: `%${escapeLike(query.username).slice(0, 100)}%` });
+      queryBuilder.andWhere('user.username LIKE :username ESCAPE \'\\\\\'', { username: `%${escapeLike(query.username).slice(0, 100)}%` });
     }
     if (query?.email) {
-      queryBuilder.andWhere('user.email LIKE :email ESCAPE \'\\\'', { email: `%${escapeLike(query.email).slice(0, 100)}%` });
+      queryBuilder.andWhere('user.email LIKE :email ESCAPE \'\\\\\'', { email: `%${escapeLike(query.email).slice(0, 100)}%` });
     }
     if (query?.status) {
       if (query.status === 'active') {

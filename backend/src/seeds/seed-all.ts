@@ -4,6 +4,10 @@ import * as bcrypt from 'bcrypt';
 import { Permission } from '../permissions/entities/permission.entity';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/entities/user.entity';
+import { Department } from '../departments/entities/department.entity';
+import { Document } from '../documents/entities/document.entity';
+import { BorrowRecord } from '../borrow-records/entities/borrow-record.entity';
+import { DocumentLog } from '../document-logs/entities/document-log.entity';
 
 /**
  * Seed dữ liệu khớp với trạng thái hiện tại của Database
@@ -17,7 +21,8 @@ const dataSource = new DataSource({
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_DATABASE || 'nest_vue_with_auth',
-  entities: [Permission, Role, User],
+  dateStrings: true,
+  entities: [Permission, Role, User, Department, Document, BorrowRecord, DocumentLog],
   synchronize: true,
 });
 
@@ -54,6 +59,23 @@ async function seed() {
     { name: 'Xóa quyền', action: 'delete', subject: 'Permission', description: 'Xóa quyền', inverted: false },
     { name: 'Ngăn truy cập Roles', action: 'create,update,delete,view', subject: 'Role', description: 'Ngăn truy cập Roles', inverted: true },
     { name: 'Ngăn truy cập Permissions', action: 'create,update,view,delete', subject: 'Permission', description: 'Ngăn truy cập Permissions', inverted: true },
+    { name: 'Xem menu bộ phận', action: 'view', subject: 'Department', description: 'Xem menu Bộ phận', inverted: false },
+    { name: 'Tạo bộ phận', action: 'create', subject: 'Department', description: 'Tạo bộ phận mới', inverted: false },
+    { name: 'Xem bộ phận', action: 'read', subject: 'Department', description: 'Xem thông tin bộ phận', inverted: false },
+    { name: 'Sửa bộ phận', action: 'update', subject: 'Department', description: 'Cập nhật bộ phận', inverted: false },
+    { name: 'Xóa bộ phận', action: 'delete', subject: 'Department', description: 'Xóa bộ phận', inverted: false },
+    { name: 'Xem menu chứng từ', action: 'view', subject: 'Document', description: 'Xem menu Chứng từ', inverted: false },
+    { name: 'Tạo chứng từ', action: 'create', subject: 'Document', description: 'Tạo chứng từ mới', inverted: false },
+    { name: 'Import Excel chứng từ', action: 'import', subject: 'Document', description: 'Import Excel nhiều chứng từ', inverted: false },
+    { name: 'Xem chứng từ', action: 'read', subject: 'Document', description: 'Xem thông tin chứng từ', inverted: false },
+    { name: 'Sửa chứng từ', action: 'update', subject: 'Document', description: 'Cập nhật chứng từ', inverted: false },
+    { name: 'Xóa chứng từ', action: 'delete', subject: 'Document', description: 'Xóa chứng từ', inverted: false },
+    { name: 'Xem menu mượn trả', action: 'view', subject: 'BorrowRecord', description: 'Xem menu Mượn trả', inverted: false },
+    { name: 'Tạo phiếu mượn', action: 'create', subject: 'BorrowRecord', description: 'Cho mượn chứng từ', inverted: false },
+    { name: 'Xem phiếu mượn', action: 'read', subject: 'BorrowRecord', description: 'Xem lịch sử mượn trả', inverted: false },
+    { name: 'Cập nhật phiếu mượn', action: 'update', subject: 'BorrowRecord', description: 'Thu hồi / trả chứng từ', inverted: false },
+    { name: 'Xem menu nhật ký chứng từ', action: 'view', subject: 'DocumentLog', description: 'Xem menu Nhật ký chứng từ', inverted: false },
+    { name: 'Xem nhật ký chứng từ', action: 'read', subject: 'DocumentLog', description: 'Xem nhật ký thao tác chứng từ', inverted: false },
   ];
 
   const savedPermissions: Permission[] = [];

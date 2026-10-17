@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SidebarProps } from '@/components/ui/sidebar'
-import { SquareTerminal, LayoutDashboard } from "lucide-vue-next"
+import { SquareTerminal, LayoutDashboard, Archive } from "lucide-vue-next"
 import NavMain from '@/components/NavMain.vue'
 import NavUser from '@/components/NavUser.vue'
 import {
@@ -38,6 +38,12 @@ const data = computed(() => {
       action: "view",
       subject: "Permission"
     },
+    {
+      title: "Bộ phận",
+      url: "/departments",
+      action: "view",
+      subject: "Department"
+    },
   ].filter(item => can(item.action, item.subject))
 
   const navMain = []
@@ -48,8 +54,35 @@ const data = computed(() => {
     icon: LayoutDashboard,
   })
 
-  // if (can('view', 'Dashboard')) {
-  // }
+  const archiveItems = [
+    {
+      title: "Chứng từ",
+      url: "/documents",
+      action: "view",
+      subject: "Document"
+    },
+    {
+      title: "Mượn trả",
+      url: "/borrow-records",
+      action: "view",
+      subject: "BorrowRecord"
+    },
+    {
+      title: "Lịch sử chứng từ",
+      url: "/document-logs",
+      action: "view",
+      subject: "DocumentLog"
+    },
+  ].filter(item => can(item.action, item.subject))
+
+  if (archiveItems.length > 0) {
+    navMain.push({
+      title: "Quản lý chứng từ",
+      url: "",
+      icon: Archive,
+      items: archiveItems,
+    })
+  }
 
   if (adminItems.length > 0) {
     navMain.push({
