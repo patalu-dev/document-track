@@ -40,6 +40,12 @@ const filters = ref({
 const pagination = ref({ page: 1, limit: 10, total: 0, totalPages: 0 })
 const error = ref<string | null>(null)
 
+const isQuaHanHuy = (d: any) => {
+    const ngay = d.thoiGianHuy?.slice(0, 10)
+    if (!ngay) return false
+    return ngay < new Date().toISOString().split('T')[0]
+}
+
 const displayedPages = computed(() => {
     const total = pagination.value.totalPages
     const current = pagination.value.page
@@ -232,7 +238,7 @@ const badgeVariant = (tt: string) => tt === 'dang_muon' ? 'default' : 'secondary
                             <td class="px-3 py-1.5 whitespace-nowrap">{{ d.viTri }}</td>
                             <td class="px-3 py-1.5 whitespace-nowrap text-xs">
                                 {{ loaiThoiGianLabel(d.loaiThoiGian) }}<span v-if="d.thoiGianLuu">: {{ d.thoiGianLuu }}</span>
-                                <br /><span class="text-slate-500">Hủy: {{ d.thoiGianHuy?.slice(0, 10) || '---' }}</span>
+                                <br /><span :class="isQuaHanHuy(d) ? 'text-red-600 font-medium' : 'text-slate-500'">Hủy: {{ d.thoiGianHuy?.slice(0, 10) || '---' }}</span>
                             </td>
                             <td class="px-3 py-1.5 whitespace-nowrap"><Badge :variant="badgeVariant(d.trangThai)">{{ trangThaiLabel(d.trangThai) }}</Badge></td>
                             <td class="px-3 py-1.5 whitespace-nowrap">
